@@ -4,7 +4,6 @@ import models.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class TaskManager {
     private int id;
@@ -23,8 +22,8 @@ public class TaskManager {
     }
 
 //    Взаимодействие с Task
-    public List<Task> getAllTasks() {
-        List<Task> tasksList = new ArrayList<>();
+    public ArrayList<Task> getAllTasks() {
+        ArrayList<Task> tasksList = new ArrayList<>();
         for (Task task : tasks.values()) {
             tasksList.add(task);
         }
