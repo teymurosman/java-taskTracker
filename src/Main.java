@@ -12,13 +12,13 @@ public class Main {
 
         Epic epic1 = taskManager.createEpic(new Epic("Ремонт", "Исправить все недочёты в квартире"));
         Subtask subtask1 = taskManager.createSubtask(new Subtask("Квартира",
-                "Купить новый кран, вызвать сантехника для замены", epic1));
+                "Купить новый кран, вызвать сантехника для замены", epic1.getId()));
         Subtask subtask2 = taskManager.createSubtask(new Subtask("Квартира",
-                "Купить новый замок, поменять, сделать дубликаты ключей", epic1));
+                "Купить новый замок, поменять, сделать дубликаты ключей", epic1.getId()));
 
         Epic epic2 = taskManager.createEpic(new Epic("Java", "Изучить язык программирования Java"));
         Subtask subtask3 = taskManager.createSubtask(new Subtask("Купить книги по Java",
-                "Head first, Clean code", epic2));
+                "Head first, Clean code", epic2.getId()));
 
         System.out.println("---------------------------------------------------------------------------------------");
         System.out.println(taskManager.getAllTasks());
@@ -28,7 +28,7 @@ public class Main {
         System.out.println("---------------------------------------------------------------------------------------");
         System.out.println(taskManager.getAllEpics());
         taskManager.updateEpic(new Epic(epic1.getId(), epic1.getName(), "Починить всё в квартире и машину"));
-        taskManager.createSubtask(new Subtask("Машина", "Отвезти в сервис", epic1));
+        taskManager.createSubtask(new Subtask("Машина", "Отвезти в сервис", epic1.getId()));
         System.out.println(taskManager.getEpicById(epic1.getId()));
 
         System.out.println("---------------------------------------------------------------------------------------");

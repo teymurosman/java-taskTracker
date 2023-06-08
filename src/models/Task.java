@@ -1,18 +1,17 @@
 package models;
 
+import java.util.Objects;
+
 public class Task {
-    private final int id;
-    private static int idIncrement;
-    private final String name;
-    private final String description;
-    private Status status;
+    protected int id;
+    protected final String name;
+    protected final String description;
+    protected Status status;
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
         status = Status.NEW;
-        idIncrement++;
-        id = idIncrement;
     }
 
     public Task(int id, String name, String description, Status status) {
@@ -30,6 +29,10 @@ public class Task {
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -56,5 +59,18 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return id == task.id && Objects.equals(name, task.name) && Objects.equals(description, task.description) && status == task.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, status);
     }
 }

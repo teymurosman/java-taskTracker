@@ -1,37 +1,49 @@
 package models;
 
-public class Subtask extends Task {
-    private Epic epicOfSubtask;
+import java.util.Objects;
 
-    public Subtask(String name, String description, Epic epicOfSubtask) {
+public class Subtask extends Task {
+    private int epicId;
+
+    public Subtask(String name, String description, int epicId) {
         super(name, description);
-        this.epicOfSubtask = epicOfSubtask;
-        putSubtaskToEpic();
+        this.epicId = epicId;
     }
 
     public Subtask(int id, String name, String description, Status status) {
         super(id, name, description, status);
     }
 
-    public Epic getEpicOfSubtask() {
-        return epicOfSubtask;
+    public int getEpicId() {
+        return epicId;
     }
 
-    public void setEpicOfSubtask(Epic epicOfSubtask) {
-        this.epicOfSubtask = epicOfSubtask;
+    public void setEpicId(int epicId) {
+        this.epicId = epicId;
     }
 
-    private void putSubtaskToEpic() {
-        epicOfSubtask.getSubtasks().put(getId(), this);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Subtask subtask = (Subtask) o;
+        return epicId == subtask.epicId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), epicId);
     }
 
     @Override
     public String toString() {
         return "Subtask{" +
-                "id='" + getId() + "'" +
-                ", name='" + getName() + "'" +
-                ", description='" + getDescription() + "'" +
-                ", status=" + getStatus() +
-                "}";
+                "epicId=" + epicId +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
