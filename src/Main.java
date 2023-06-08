@@ -34,7 +34,7 @@ public class Main {
         System.out.println("---------------------------------------------------------------------------------------");
         System.out.println(taskManager.getSubtasksByEpic(epic2));
         taskManager.updateSubtask(new Subtask(subtask3.getId(), subtask3.getName(), subtask3.getDescription(),
-                Status.DONE)); // Должен поменяться и статус эпика, и сабтаска
+                Status.DONE, subtask3.getEpicId())); // Должен поменяться и статус эпика, и сабтаска
         System.out.println(taskManager.getEpicById(epic2.getId()));
 
         System.out.println("---------------------------------------------------------------------------------------");
