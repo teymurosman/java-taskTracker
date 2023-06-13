@@ -23,8 +23,9 @@ public class InMemoryTaskManager implements TaskManager {
         return ++id;
     }
 
-    public HistoryManager getInMemoryHistoryManager() {
-        return inMemoryHistoryManager;
+    @Override
+    public List<Task> getHistory() {
+        return inMemoryHistoryManager.getHistory();
     }
 
 //    Взаимодействие с Task
@@ -41,7 +42,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        return tasks.get(id);
+        Task task = tasks.get(id);
+        inMemoryHistoryManager.add(task);
+        return task;
     }
 
     @Override
@@ -106,7 +109,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Epic getEpicById (int id) {
-        return epics.get(id);
+        Epic epic = epics.get(id);
+        inMemoryHistoryManager.add(epic);
+        return epic;
     }
 
     @Override
@@ -192,5 +197,12 @@ public class InMemoryTaskManager implements TaskManager {
                 subtasksByEpic.add(subtasks.get(subtaskId));
         }
         return subtasksByEpic;
+    }
+
+    @Override
+    public Subtask getSubtaskById(int id) {
+        Subtask subtask = subtasks.get(id);
+        inMemoryHistoryManager.add(subtask);
+        return subtask;
     }
 }

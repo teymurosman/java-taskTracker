@@ -5,6 +5,9 @@ import models.*;
 import java.util.List;
 
 public interface TaskManager {
+
+    List<Task> getHistory();
+
 //    Взаимодействие с Task
 
     List<Task> getAllTasks();
@@ -46,4 +49,6 @@ public interface TaskManager {
     void deleteSubtaskById(int id);
 
     List<Subtask> getSubtasksByEpic(Epic epic);
+
+    Subtask getSubtaskById(int id);
 }
