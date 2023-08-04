@@ -8,10 +8,10 @@ import java.util.HashMap;
 
 public class InMemoryTaskManager implements TaskManager {
     private int id;
-    private final HashMap<Integer, Task> tasks;
-    private final HashMap<Integer, Epic> epics;
-    private final HashMap<Integer, Subtask> subtasks;
-    private final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
+    protected final HashMap<Integer, Task> tasks;
+    protected final HashMap<Integer, Epic> epics;
+    protected final HashMap<Integer, Subtask> subtasks;
+    protected final HistoryManager inMemoryHistoryManager = Managers.getDefaultHistory();
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -21,6 +21,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     private int getIdManager() {
         return ++id;
+    }
+
+    protected void setStartingId(int startId) {
+        id = startId;
     }
 
     @Override
