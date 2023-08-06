@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
+public class FileBackedTaskManager extends InMemoryTaskManager {
     private final String filename;
 
     public FileBackedTaskManager(String filename) {
@@ -146,6 +146,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     private void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            bw.write("id,type,name,status,description,epic\n");
             for (Task task : tasks.values()) {
                 writeTaskToFile(bw, task);
             }
@@ -229,6 +230,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         int startId = 0;
         try {
             List<String> lines = Files.readAllLines(file.toPath());
+            lines.remove(0);
             for (String line : lines) {
                 if (line.isEmpty()) {
                     break;

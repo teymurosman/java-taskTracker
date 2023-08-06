@@ -56,10 +56,6 @@ public class Task {
         return type;
     }
 
-    public void setType(TaskType type) {
-        this.type = type;
-    }
-
     @Override
     public String toString() {
         return "Task{" +
