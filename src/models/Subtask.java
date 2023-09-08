@@ -17,6 +17,18 @@ public class Subtask extends Task {
         type = TaskType.SUBTASK;
     }
 
+    public Subtask(String name, String description, int epicId, String startTime, long duration) {
+        super(name, description, startTime, duration);
+        this.epicId = epicId;
+        type = TaskType.SUBTASK;
+    }
+
+    public Subtask(int id, String name, String description, Status status, int epicId, String startTime, long duration) {
+        super(id, name, description, status, startTime, duration);
+        this.epicId = epicId;
+        type = TaskType.SUBTASK;
+    }
+
     public int getEpicId() {
         return epicId;
     }
@@ -47,6 +59,9 @@ public class Subtask extends Task {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", status=" + status +
+                ", type=" + type +
+                ", duration=" + duration +
+                ", startTime=" + startTime +
                 '}';
     }
 }
