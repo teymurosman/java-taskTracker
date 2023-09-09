@@ -35,8 +35,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Set<Task> getPrioritizedTasks() {
-        return prioritizedTasks;
+    public List<Task> getPrioritizedTasks() {
+        return List.copyOf(prioritizedTasks);
     }
 
 //    Взаимодействие с Task
@@ -85,11 +85,10 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTaskById(int id) {
-        try {
-            prioritizedTasks.remove(tasks.get(id));
-        } catch (NullPointerException e) {
-            System.out.println("Удаляемой задачи не существует");
+        if (!tasks.containsKey(id)) {
+            return;
         }
+        prioritizedTasks.remove(tasks.get(id));
         tasks.remove(id);
         inMemoryHistoryManager.remove(id);
     }
@@ -134,22 +133,17 @@ public class InMemoryTaskManager implements TaskManager {
                 .mapToLong(Long::longValue)
                 .sum();
 
-        try {
-            minSubtaskStartTime = subtasksOfEpic.stream()
-                    .map(Subtask::getStartTime)
-                    .filter(Objects::nonNull)
-                    .min(LocalDateTime::compareTo)
-                    .orElseThrow();
+        minSubtaskStartTime = subtasksOfEpic.stream()
+                .map(Subtask::getStartTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
 
-            maxSubtaskEndTime = subtasksOfEpic.stream()
-                    .filter(subtask -> subtask.getStartTime() != null)
-                    .map(Subtask::getEndTime)
-                    .max(LocalDateTime::compareTo)
-                    .orElseThrow();
-        } catch (NoSuchElementException e) {
-            System.out.println("Не найдено подзадач с установленным временем выполнения");
-            return;
-        }
+        maxSubtaskEndTime = subtasksOfEpic.stream()
+                .filter(subtask -> subtask.getStartTime() != null)
+                .map(Subtask::getEndTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
 
         epic.setDuration(duration);
         epic.setStartTime(minSubtaskStartTime);
@@ -196,11 +190,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpic(Epic newEpic) {
-        if (epics.containsKey(newEpic.getId())) {
-            Epic oldEpic = epics.get(newEpic.getId());
-            newEpic.setSubtaskIds(oldEpic.getSubtaskIds());
-            newEpic.setEndTime(oldEpic.getEndTime());
-            epics.put(newEpic.getId(), newEpic);
+        final int id = newEpic.getId();
+        if (epics.containsKey(id)) {
+            epics.put(id, newEpic);
         }
     }
 
@@ -234,6 +226,8 @@ public class InMemoryTaskManager implements TaskManager {
         for (Epic epic : epics.values()) {
             epic.getSubtaskIds().clear();
             epic.setStatus(Status.NEW);
+            epic.setStartTime(null);
+            epic.setEndTime(null);
         }
     }
 
@@ -269,14 +263,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteSubtaskById(int id) {
-        if (subtasks.containsKey(id)) {
-            Epic epic = epics.get(subtasks.get(id).getEpicId());
-            epic.getSubtaskIds().remove((Integer) id);
-            calculateEpicFields(epic);
-            prioritizedTasks.remove(subtasks.get(id));
-            subtasks.remove(id);
-            inMemoryHistoryManager.remove(id);
+        if (!subtasks.containsKey(id)) {
+            return;
         }
+        Epic epic = epics.get(subtasks.get(id).getEpicId());
+        epic.getSubtaskIds().remove((Integer) id);
+        calculateEpicFields(epic);
+        prioritizedTasks.remove(subtasks.get(id));
+        subtasks.remove(id);
+        inMemoryHistoryManager.remove(id);
     }
 
     @Override

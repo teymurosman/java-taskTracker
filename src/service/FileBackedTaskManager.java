@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -154,7 +155,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             taskString += ",";
         }
         if (task.getStartTime() != null) {
-            taskString += String.format(",%s,%s", task.getStartTimeString(), task.getDuration());
+            taskString += String.format(",%s,%s", task.getStartTime(), task.getDuration());
         }
         return taskString;
     }
@@ -177,11 +178,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = array[2];
         Status status = Status.valueOf(array[3]);
         String description = array[4];
-        String startTime;
+        LocalDateTime startTime;
         long duration;
         if (type == TaskType.TASK) {
             if (array.length > 5) {
-                startTime = array[6];
+                startTime = LocalDateTime.parse(array[6]);
                 duration = Long.parseLong(array[7]);
                 return new Task(id, name, description, status, startTime, duration);
             } else {
@@ -192,7 +193,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } else {
             int epicId = Integer.parseInt(array[5]);
             if (array.length > 6) {
-                startTime = array[6];
+                startTime = LocalDateTime.parse(array[6]);
                 duration = Long.parseLong(array[7]);
                 return new Subtask(id, name, description, status, epicId, startTime, duration);
             } else {
@@ -240,10 +241,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 int taskId = task.getId();
                 if (task.getType() == TaskType.TASK) {
                     fbtManager.tasks.put(taskId, task);
+                    fbtManager.prioritizedTasks.add(task);
                 } else if (task.getType() == TaskType.EPIC) {
                     fbtManager.epics.put(taskId, (Epic) task);
                 } else {
                     fbtManager.subtasks.put(taskId, (Subtask) task);
+                    fbtManager.prioritizedTasks.add(task);
                 }
 
                 if (taskId > startId) {

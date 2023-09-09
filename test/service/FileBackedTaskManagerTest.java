@@ -34,14 +34,14 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void loadFromFileStandardCase() {
-        taskManager.createTask(task);
-        taskManager.createTask(task2);
+        taskManager.createTask(task); // startTime: 2023, 9, 1, 12, 0 (3)
+        taskManager.createTask(task2); // startTime: 2022, 5, 23, 15, 30) (2)
         setUpForSubtaskTests();
-        taskManager.createSubtask(subtask); // epic
-        taskManager.createSubtask(subtask2); // epic
+        taskManager.createSubtask(subtask); // epic; startTime: 2020, 12, 10, 14, 21 (1)
+        taskManager.createSubtask(subtask2); // epic; startTime 2023, 11, 15, 19, 45 (4)
         taskManager.createEpic(epic2);
         Subtask subtask3 = new Subtask("subtask3", "description subtask3", epic2.getId());
-        taskManager.createSubtask(subtask3); // epic2
+        taskManager.createSubtask(subtask3); // epic2; startTime: null (5)
         taskManager.getTaskById(task2.getId());
         taskManager.getSubtaskById(subtask2.getId());
         taskManager.getEpicById(epic.getId());
@@ -58,7 +58,11 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         assertEquals(List.of(task, task2), loadedTaskManager.getAllTasks(), "Задачи не совпадают");
         assertEquals(List.of(epic, epic2), loadedTaskManager.getAllEpics(), "Эпик не совпадает");
         assertEquals(List.of(subtask, subtask2, subtask3), loadedTaskManager.getAllSubtasks(),
-                "Подадачи не совпадают");
+                "Подзадачи не совпадают");
+        assertEquals(5, loadedTaskManager.getPrioritizedTasks().size(),
+                "Размер набора по приоритету не совпадает");
+        assertEquals(List.of(subtask, task2, task, subtask2, subtask3), loadedTaskManager.getPrioritizedTasks(),
+                "Набор по приоритету не совпадает");
     }
 
     @Test

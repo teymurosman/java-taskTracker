@@ -1,11 +1,9 @@
 package models;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task { // Переписать equals, hashCode, toString
-    private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm yyyy-MM-dd");
     protected int id;
     protected String name;
     protected String description;
@@ -33,20 +31,20 @@ public class Task { // Переписать equals, hashCode, toString
         this.description = description;
     }
 
-    public Task(String name, String description, String startTime, long duration) {
+    public Task(String name, String description, LocalDateTime startTime, long duration) {
         this.name = name;
         this.description = description;
-        this.startTime = LocalDateTime.parse(startTime, DATE_TIME_FORMATTER);
+        this.startTime = startTime;
         this.duration = duration;
         status = Status.NEW;
     }
 
-    public Task(int id, String name, String description, Status status, String startTime, long duration) {
+    public Task(int id, String name, String description, Status status, LocalDateTime startTime, long duration) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.status = status;
-        this.startTime = LocalDateTime.parse(startTime, DATE_TIME_FORMATTER);
+        this.startTime = startTime;
         this.duration = duration;
     }
 
@@ -90,16 +88,8 @@ public class Task { // Переписать equals, hashCode, toString
         return startTime;
     }
 
-    public String getStartTimeString() {
-        return startTime.format(DATE_TIME_FORMATTER);
-    }
-
     public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
-    }
-
-    public void setStartTimeFromString(String startTimeString) {
-        startTime = LocalDateTime.parse(startTimeString, DATE_TIME_FORMATTER);
     }
 
     public LocalDateTime getEndTime() {

@@ -1,5 +1,6 @@
 package models;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Subtask extends Task {
@@ -17,13 +18,14 @@ public class Subtask extends Task {
         type = TaskType.SUBTASK;
     }
 
-    public Subtask(String name, String description, int epicId, String startTime, long duration) {
+    public Subtask(String name, String description, int epicId, LocalDateTime startTime, long duration) {
         super(name, description, startTime, duration);
         this.epicId = epicId;
         type = TaskType.SUBTASK;
     }
 
-    public Subtask(int id, String name, String description, Status status, int epicId, String startTime, long duration) {
+    public Subtask(int id, String name, String description, Status status, int epicId, LocalDateTime startTime,
+                   long duration) {
         super(id, name, description, status, startTime, duration);
         this.epicId = epicId;
         type = TaskType.SUBTASK;

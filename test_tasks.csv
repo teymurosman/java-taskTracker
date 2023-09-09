@@ -1,10 +1,10 @@
 id,type,name,status,description,epic,startTime,duration
-1,TASK,task1,NEW,description task1,,12:00 2023-09-01,60
-2,TASK,task2,NEW,description task2,,15:30 2022-05-23,150
-3,EPIC,epic1,NEW,description epic1,,14:21 2020-12-10,32
+1,TASK,task1,NEW,description task1,,2023-09-01T12:00,60
+2,TASK,task2,NEW,description task2,,2022-05-23T15:30,150
+3,EPIC,epic1,NEW,description epic1,,2020-12-10T14:21,32
 6,EPIC,epic2,NEW,description epic2,
-4,SUBTASK,subtask1,NEW,description subtask1,3,14:21 2020-12-10,7
-5,SUBTASK,subtask2,NEW,description subtask2,3,19:45 2023-11-15,25
+4,SUBTASK,subtask1,NEW,description subtask1,3,2020-12-10T14:21,7
+5,SUBTASK,subtask2,NEW,description subtask2,3,2023-11-15T19:45,25
 7,SUBTASK,subtask3,NEW,description subtask3,6
 
 5,3,1,2

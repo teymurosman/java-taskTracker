@@ -3,18 +3,18 @@ package service;
 import models.*;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class TaskManagerTest<T extends TaskManager> {
+abstract class TaskManagerTest<T extends TaskManager> {
 
     protected T taskManager;
-    protected Task task = new Task("task1", "description task1", "12:00 2023-09-01",
-            60);
-    protected Task task2 = new Task("task2", "description task2", "15:30 2022-05-23",
-            150);
+    protected Task task = new Task("task1", "description task1",
+            LocalDateTime.of(2023, 9, 1, 12, 0), 60);
+    protected Task task2 = new Task("task2", "description task2",
+            LocalDateTime.of(2022, 5, 23, 15, 30), 150);
     protected Epic epic = new Epic("epic1", "description epic1");
     protected Epic epic2 = new Epic("epic2", "description epic2");
     protected Subtask subtask;
@@ -23,9 +23,9 @@ class TaskManagerTest<T extends TaskManager> {
     void setUpForSubtaskTests() {
         epic = taskManager.createEpic(epic);
         subtask = new Subtask("subtask1", "description subtask1", epic.getId(),
-                "14:21 2020-12-10", 7);
+                LocalDateTime.of(2020, 12, 10, 14, 21), 7);
         subtask2 = new Subtask("subtask2", "description subtask2", epic.getId(),
-                "19:45 2023-11-15", 25);
+                LocalDateTime.of(2023, 11, 15, 19, 45), 25);
     }
     @Test
     void createTaskStandardCase() {
@@ -86,7 +86,7 @@ class TaskManagerTest<T extends TaskManager> {
         task = taskManager.createTask(task);
         final int taskId = task.getId();
         Task updatedTask = new Task(taskId, "updated name", "updated description", Status.IN_PROGRESS,
-                "20:00 2021-07-18", 33);
+                LocalDateTime.of(2021, 7, 18, 20, 0), 33);
         taskManager.updateTask(updatedTask);
         Task getUpdTask = taskManager.getTaskById(taskId);
 
@@ -112,7 +112,7 @@ class TaskManagerTest<T extends TaskManager> {
         final int taskId = task.getId();
         final int wrongId = taskId + 55;
         Task updatedTask = new Task(wrongId, "updated Name", "updated description", Status.IN_PROGRESS,
-                "20:00 2021-07-18", 33);
+                LocalDateTime.of(2021, 7, 18, 20, 0), 33);
         taskManager.updateTask(updatedTask);
         Task getUpdTask = taskManager.getTaskById(taskId);
 
@@ -366,7 +366,8 @@ class TaskManagerTest<T extends TaskManager> {
         subtask = taskManager.createSubtask(subtask);
         final int subtaskId = subtask.getId();
         Subtask updatedSubtask = new Subtask(subtaskId, "updated name", "updated description",
-                Status.IN_PROGRESS, epic.getId(), "20:00 2021-07-18", 33);
+                Status.IN_PROGRESS, epic.getId(),
+                LocalDateTime.of(2021, 7, 18, 20, 0), 33);
         taskManager.updateSubtask(updatedSubtask);
         Subtask getUpdSubtask = taskManager.getSubtaskById(subtaskId);
 
@@ -394,7 +395,8 @@ class TaskManagerTest<T extends TaskManager> {
         final int subtaskId = subtask.getId();
         final int wrongId = subtaskId + 55;
         Subtask updatedSubtask = new Subtask(wrongId, "updated Name", "updated description",
-                Status.IN_PROGRESS, epic.getId(), "20:00 2021-07-18", 33);
+                Status.IN_PROGRESS, epic.getId(),
+                LocalDateTime.of(2021, 7, 18, 20, 0), 33);
         taskManager.updateSubtask(updatedSubtask);
         Subtask getUpdSubtask = taskManager.getSubtaskById(subtaskId);
 
@@ -487,10 +489,9 @@ class TaskManagerTest<T extends TaskManager> {
         taskManager.createSubtask(subtask2); // 19:45 2023-11-15 (4)
         Subtask subtask3 = new Subtask("subtask with time null", "description b", epic2.getId());
         taskManager.createSubtask(subtask3); // (6)
-        Set<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
-        Task[] array = new Task[] {subtask, task2, task, subtask2, task3, subtask3};
-        
+        List<Task> prioritizedTasks = taskManager.getPrioritizedTasks();
+
         assertEquals(6, prioritizedTasks.size(), "Размер множества не совпадает");
-        assertArrayEquals(array, prioritizedTasks.toArray(new Task[6]));
+        assertEquals(List.of(subtask, task2, task, subtask2, task3, subtask3), prioritizedTasks);
     }
 }

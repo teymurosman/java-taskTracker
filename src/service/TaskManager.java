@@ -3,10 +3,9 @@ package service;
 import models.*;
 
 import java.util.List;
-import java.util.Set;
 
 public interface TaskManager {
-    Set<Task> getPrioritizedTasks();
+    List<Task> getPrioritizedTasks();
 
     List<Task> getHistory();
 
