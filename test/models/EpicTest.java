@@ -2,7 +2,7 @@ package models;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import service.Managers;
+import util.Managers;
 import service.TaskManager;
 
 import static org.junit.jupiter.api.Assertions.*;

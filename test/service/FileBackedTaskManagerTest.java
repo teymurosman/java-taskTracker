@@ -53,7 +53,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
         assertEquals(task, loadedTaskManager.getTaskById(task.getId()), "task не совпадает");
         assertEquals(task2.getStartTime(), loadedTaskManager.getTaskById(task2.getId()).getStartTime(),
                 "startTime у task2 не совпадает");
-        assertEquals(List.of(subtask, subtask2), loadedTaskManager.getSubtasksByEpic(epic),
+        assertEquals(List.of(subtask, subtask2), loadedTaskManager.getSubtasksByEpicId(epic.getId()),
                 "Неверно перезаписаны подзадачи по принадлежности к эпику");
         assertEquals(List.of(task, task2), loadedTaskManager.getAllTasks(), "Задачи не совпадают");
         assertEquals(List.of(epic, epic2), loadedTaskManager.getAllEpics(), "Эпик не совпадает");

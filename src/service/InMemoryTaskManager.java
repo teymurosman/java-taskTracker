@@ -1,6 +1,7 @@
 package service;
 
 import models.*;
+import util.Managers;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -126,7 +127,7 @@ public class InMemoryTaskManager implements TaskManager {
         LocalDateTime minSubtaskStartTime;
         LocalDateTime maxSubtaskEndTime;
 
-        List<Subtask> subtasksOfEpic = getSubtasksByEpic(epic);
+        List<Subtask> subtasksOfEpic = getSubtasksByEpicId(epic.getId());
 
         long duration = subtasksOfEpic.stream()
                 .map(Subtask::getDuration)
@@ -192,7 +193,9 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateEpic(Epic newEpic) {
         final int id = newEpic.getId();
         if (epics.containsKey(id)) {
-            epics.put(id, newEpic);
+            final Epic oldEpic = epics.get(id);
+            oldEpic.setName(newEpic.getName());
+            oldEpic.setDescription(newEpic.getDescription());
         }
     }
 
@@ -228,6 +231,7 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.NEW);
             epic.setStartTime(null);
             epic.setEndTime(null);
+            epic.setDuration(0);
         }
     }
 
@@ -275,8 +279,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Subtask> getSubtasksByEpic(Epic epic) {
+    public List<Subtask> getSubtasksByEpicId(int epicId) {
         List<Subtask> subtasksByEpic = new ArrayList<>();
+        Epic epic = epics.get(epicId);
         for (Integer subtaskId : epic.getSubtaskIds()) {
                 subtasksByEpic.add(subtasks.get(subtaskId));
         }

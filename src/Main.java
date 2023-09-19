@@ -1,7 +1,17 @@
-public class Main {
+import api.HttpTaskServer;
+import api.KVServer;
 
+import java.io.IOException;
+
+public class Main {
     public static void main(String[] args) {
-        Test test = new Test();
-        test.testCustomLinkedList();
+        try {
+            KVServer kvServer = new KVServer();
+            kvServer.start();
+            HttpTaskServer httpTaskServer = new HttpTaskServer("http://localhost");
+            httpTaskServer.start();
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Ошибка запуска сервера");
+        }
     }
 }

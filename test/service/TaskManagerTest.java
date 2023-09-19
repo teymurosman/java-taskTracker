@@ -224,15 +224,15 @@ abstract class TaskManagerTest<T extends TaskManager> {
     void updateEpicStandardCase() {
         epic = taskManager.createEpic(epic);
         final int epicId = epic.getId();
+        final String oldName = epic.getName();
+        final String oldDescription = epic.getDescription();
         Epic updatedEpic = new Epic(epicId, "updated name", "updated description");
         taskManager.updateEpic(updatedEpic);
-        Epic getUpdEpic = taskManager.getEpicById(epicId);
+        final String newName = taskManager.getEpicById(epicId).getName();
+        final String newDescription = taskManager.getEpicById(epicId).getDescription();
 
-        assertEquals(epicId, getUpdEpic.getId(), "id не совпадают");
-        assertNotEquals(epic.getName(), getUpdEpic.getName(), "Поле name не обновилось");
-        assertNotEquals(epic.getDescription(), getUpdEpic.getDescription(), "Поле description не обновилось");
-        assertNotEquals(epic.getStatus(), getUpdEpic.getStatus(), "Поле status не обновилось");
-        assertEquals(epic.getSubtaskIds(), getUpdEpic.getSubtaskIds(), "Поле subtaskIds не совпадает");
+        assertNotEquals(oldName, newName, "Поле name не обновилось");
+        assertNotEquals(oldDescription, newDescription, "Поле description не обновилось");
     }
 
     @Test
@@ -460,7 +460,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         subtask = taskManager.createSubtask(subtask); // epic
         subtask2 = taskManager.createSubtask(subtask2); // epic
         taskManager.createSubtask(new Subtask("subtask3", "description subtask3", epic2.getId())); // epic2
-        List<Subtask> subtasksByEpic = taskManager.getSubtasksByEpic(epic);
+        List<Subtask> subtasksByEpic = taskManager.getSubtasksByEpicId(epic.getId());
 
         assertEquals(2, subtasksByEpic.size(), "Размеры списков не совадают");
         assertEquals(List.of(subtask, subtask2), subtasksByEpic, "Списки не совпадают");
@@ -472,7 +472,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
         taskManager.createEpic(epic2);
         subtask = taskManager.createSubtask(subtask); // epic
         subtask2 = taskManager.createSubtask(subtask2); // epic
-        List<Subtask> subtasksByEpic = taskManager.getSubtasksByEpic(epic2);
+        List<Subtask> subtasksByEpic = taskManager.getSubtasksByEpicId(epic2.getId());
 
         assertEquals(0, subtasksByEpic.size(), "Список не пустой");
     }

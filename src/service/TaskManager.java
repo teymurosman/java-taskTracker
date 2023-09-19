@@ -49,7 +49,7 @@ public interface TaskManager {
 
     void deleteSubtaskById(int id);
 
-    List<Subtask> getSubtasksByEpic(Epic epic);
+    List<Subtask> getSubtasksByEpicId(int epicId);
 
     Subtask getSubtaskById(int id);
 }

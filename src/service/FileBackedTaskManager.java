@@ -1,5 +1,6 @@
 package service;
 
+import exceptions.ManagerSaveException;
 import models.*;
 
 import java.io.BufferedWriter;
@@ -118,7 +119,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return subtask;
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
             bw.write("id,type,name,status,description,epic,startTime,duration\n");
             for (Task task : tasks.values()) {
