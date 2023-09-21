@@ -1,14 +1,12 @@
 package api;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import models.Epic;
 import models.Subtask;
 import models.Task;
-import util.LocalDateTimeAdapter;
 import util.Managers;
 import service.TaskManager;
 
@@ -18,7 +16,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 
 public class HttpTaskServer {
     private static final int PORT = 8080;
@@ -27,24 +24,22 @@ public class HttpTaskServer {
     private final HttpServer httpServer;
     private final Gson gson;
 
-    public HttpTaskServer(String host) throws IOException, InterruptedException {
-        taskManager = Managers.getHttpTaskManager(host);
-        gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .create();
+    public HttpTaskServer(TaskManager taskManager) throws IOException, InterruptedException {
+        this.taskManager = taskManager;
+        gson = Managers.getGsonWithAdapters();
         httpServer = HttpServer.create(new InetSocketAddress(PORT), 0);
         httpServer.createContext("/tasks", new TasksHandler());
     }
 
     private class TasksHandler implements HttpHandler {
+        final String tasks = "/tasks/task";
+        final String subtasks = "/tasks/subtask";
+        final String epics = "/tasks/epic";
+        final String history = "/tasks/history";
+        final String subtasksByEpic = "/tasks/subtask/epic";
 
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String tasks = "/tasks/task";
-            String subtasks = "/tasks/subtask";
-            String epics = "/tasks/epic";
-            String history = "/tasks/history";
-            String subtasksByEpic = "/tasks/subtask/epic";
 
             String path = exchange.getRequestURI().getPath();
             String query = exchange.getRequestURI().getQuery();
@@ -55,66 +50,70 @@ public class HttpTaskServer {
                 String response;
                 switch (method) {
                     case "GET":
-                        if (path.endsWith("/tasks")) {
-                            System.out.println("Обработка запроса на получение приоритизированного списка всех задач");
-                            exchange.sendResponseHeaders(200, 0);
-                            response = gson.toJson(taskManager.getPrioritizedTasks());
-                            try (OutputStream outputStream = exchange.getResponseBody()) {
-                                outputStream.write(response.getBytes(DEFAULT_CHARSET));
-                            }
-                        } else if (path.endsWith(tasks)) {
-                            System.out.println("Обработка запроса на получение списка задач");
-                            exchange.sendResponseHeaders(200, 0);
-                            response = gson.toJson(taskManager.getAllTasks());
-                            try (OutputStream outputStream = exchange.getResponseBody()) {
-                                outputStream.write(response.getBytes(DEFAULT_CHARSET));
-                            }
-                        } else if (path.endsWith(subtasks)) {
-                            System.out.println("Обработка запроса на получение списка подзадач");
-                            exchange.sendResponseHeaders(200, 0);
-                            response = gson.toJson(taskManager.getAllSubtasks());
-                            try (OutputStream outputStream = exchange.getResponseBody()) {
-                                outputStream.write(response.getBytes(DEFAULT_CHARSET));
-                            }
-                        } else if (path.endsWith(epics)) {
-                            System.out.println("Обработка запроса на получение списка эпиков");
-                            exchange.sendResponseHeaders(200, 0);
-                            response = gson.toJson(taskManager.getAllEpics());
-                            try (OutputStream outputStream = exchange.getResponseBody()) {
-                                outputStream.write(response.getBytes(DEFAULT_CHARSET));
-                            }
-                        } else if (path.endsWith(history)) {
-                            System.out.println("Обработка запроса на получение списка истории просмотров");
-                            exchange.sendResponseHeaders(200, 0);
-                            response = gson.toJson(taskManager.getHistory());
-                            try (OutputStream outputStream = exchange.getResponseBody()) {
-                                outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                        if (query == null) {
+                            if (path.endsWith("/tasks")) {
+                                System.out.println("Обработка запроса на получение приоритизированного списка всех задач");
+                                exchange.sendResponseHeaders(200, 0);
+                                response = gson.toJson(taskManager.getPrioritizedTasks());
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                            } else if (path.endsWith(tasks)) {
+                                System.out.println("Обработка запроса на получение списка задач");
+                                exchange.sendResponseHeaders(200, 0);
+                                response = gson.toJson(taskManager.getAllTasks());
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                            } else if (path.endsWith(subtasks)) {
+                                System.out.println("Обработка запроса на получение списка подзадач");
+                                exchange.sendResponseHeaders(200, 0);
+                                response = gson.toJson(taskManager.getAllSubtasks());
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                            } else if (path.endsWith(epics)) {
+                                System.out.println("Обработка запроса на получение списка эпиков");
+                                exchange.sendResponseHeaders(200, 0);
+                                response = gson.toJson(taskManager.getAllEpics());
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                            } else if (path.endsWith(history)) {
+                                System.out.println("Обработка запроса на получение списка истории просмотров");
+                                exchange.sendResponseHeaders(200, 0);
+                                response = gson.toJson(taskManager.getHistory());
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                            } else {
+                                System.out.println("Не удалось обработать запрос");
                             }
                         } else {
                             System.out.println("Обработка запроса поиска");
                             final int id = Integer.parseInt(query.substring(query.indexOf('=') + 1));
-                            if (path.endsWith(tasks + "/")) {
+                            if (path.endsWith(tasks)) {
                                 System.out.println("Обработка запроса поиска задачи с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 response = gson.toJson(taskManager.getTaskById(id));
                                 try (OutputStream outputStream = exchange.getResponseBody()) {
                                     outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                 }
-                            } else if (path.endsWith(subtasks + "/")) {
+                            } else if (path.endsWith(subtasks)) {
                                 System.out.println("Обработка запроса поиска подзадачи с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 response = gson.toJson(taskManager.getSubtaskById(id));
                                 try (OutputStream outputStream = exchange.getResponseBody()) {
                                     outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                 }
-                            } else if (path.endsWith(epics + "/")) {
+                            } else if (path.endsWith(epics)) {
                                 System.out.println("Обработка запроса поиска эпика с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 response = gson.toJson(taskManager.getEpicById(id));
                                 try (OutputStream outputStream = exchange.getResponseBody()) {
                                     outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                 }
-                            } else if (path.endsWith(subtasksByEpic + "/")) {
+                            } else if (path.endsWith(subtasksByEpic)) {
                                 System.out.println("Обработка запроса поиска подзадачи по эпику с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 response = gson.toJson(taskManager.getSubtasksByEpicId(id));
@@ -131,6 +130,14 @@ public class HttpTaskServer {
                         InputStream inputStream = exchange.getRequestBody();
                         if (inputStream != null) {
                             String requestBody = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+                            if (requestBody.isBlank()) {
+                                exchange.sendResponseHeaders(400, 0);
+                                response = "Тело запроса пустое";
+                                try (OutputStream outputStream = exchange.getResponseBody()) {
+                                    outputStream.write(response.getBytes(DEFAULT_CHARSET));
+                                }
+                                return;
+                            }
                             if (query == null) {
                                 if (path.endsWith(tasks)) {
                                     System.out.println("Обработка запроса создания задачи");
@@ -162,7 +169,7 @@ public class HttpTaskServer {
                                 }
                             } else {
                                 final int id = Integer.parseInt(query.substring(query.indexOf('=') + 1));
-                                if (path.endsWith(tasks + "/")) {
+                                if (path.endsWith(tasks)) {
                                     System.out.println("Обработка запроса обновления задачи с id = " + id);
                                     taskManager.updateTask(gson.fromJson(requestBody, Task.class));
                                     exchange.sendResponseHeaders(201, 0);
@@ -170,7 +177,7 @@ public class HttpTaskServer {
                                     try (OutputStream outputStream = exchange.getResponseBody()) {
                                         outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                     }
-                                } else if (path.endsWith(subtasks + "/")) {
+                                } else if (path.endsWith(subtasks)) {
                                     System.out.println("Обработка запроса обновления подзадачи с id = " + id);
                                     taskManager.updateSubtask(gson.fromJson(requestBody, Subtask.class));
                                     exchange.sendResponseHeaders(201, 0);
@@ -178,7 +185,7 @@ public class HttpTaskServer {
                                     try (OutputStream outputStream = exchange.getResponseBody()) {
                                         outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                     }
-                                } else if (path.endsWith(epics + "/")) {
+                                } else if (path.endsWith(epics)) {
                                     System.out.println("Обработка запроса обновления эпика с id = " + id);
                                     taskManager.updateEpic(gson.fromJson(requestBody, Epic.class));
                                     exchange.sendResponseHeaders(201, 0);
@@ -228,7 +235,7 @@ public class HttpTaskServer {
                             }
                         } else {
                             final int id = Integer.parseInt(query.substring(query.indexOf('=') + 1));
-                            if (path.endsWith(tasks + "/")) {
+                            if (path.endsWith(tasks)) {
                                 System.out.println("Обработка запроса удаления задачи с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 taskManager.deleteTaskById(id);
@@ -236,7 +243,7 @@ public class HttpTaskServer {
                                 try (OutputStream outputStream = exchange.getResponseBody()) {
                                     outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                 }
-                            } else if (path.endsWith(subtasks + "/")) {
+                            } else if (path.endsWith(subtasks)) {
                                 System.out.println("Обработка запроса удаления подзадачи с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 taskManager.deleteSubtaskById(id);
@@ -244,7 +251,7 @@ public class HttpTaskServer {
                                 try (OutputStream outputStream = exchange.getResponseBody()) {
                                     outputStream.write(response.getBytes(DEFAULT_CHARSET));
                                 }
-                            } else if (path.endsWith(epics + "/")) {
+                            } else if (path.endsWith(epics)) {
                                 System.out.println("Обработка запроса удаления эпика с id = " + id);
                                 exchange.sendResponseHeaders(200, 0);
                                 taskManager.deleteEpicById(id);

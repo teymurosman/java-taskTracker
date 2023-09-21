@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import models.Epic;
 import models.Subtask;
 import models.Task;
+import models.TaskType;
 import util.LocalDateTimeAdapter;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,8 @@ public class HttpTaskManager extends FileBackedTaskManager{
             if (loadedTasks != null) {
                 List<Task> tasksList = gson.fromJson(loadedTasks, new TypeToken<List<Task>>() {}.getType());
                 for (Task task : tasksList) {
-                    manager.createTask(task);
+                    manager.tasks.put(task.getId(), task);
+                    manager.prioritizedTasks.add(task);
                     if (task.getId() > startId) {
                         startId = task.getId();
                     }
@@ -41,7 +43,7 @@ public class HttpTaskManager extends FileBackedTaskManager{
             if (loadedTasks != null) {
                 List<Epic> epicsList = gson.fromJson(loadedEpics, new TypeToken<List<Epic>>() {}.getType());
                 for (Epic epic : epicsList) {
-                    manager.createEpic(epic);
+                    manager.epics.put(epic.getId(), epic);
                     if (epic.getId() > startId) {
                         startId = epic.getId();
                     }
@@ -52,7 +54,8 @@ public class HttpTaskManager extends FileBackedTaskManager{
                 List<Subtask> subtasksList = gson.fromJson(loadedSubtasks, new TypeToken<List<Subtask>>() {}
                         .getType());
                 for (Subtask subtask : subtasksList) {
-                    manager.createSubtask(subtask);
+                    manager.subtasks.put(subtask.getId(), subtask);
+                    manager.prioritizedTasks.add(subtask);
                     if (subtask.getId() > startId) {
                         startId = subtask.getId();
                     }
@@ -62,12 +65,31 @@ public class HttpTaskManager extends FileBackedTaskManager{
             if (loadedHistory != null) {
                 List<Task> historyList = gson.fromJson(loadedHistory, new TypeToken<List<Task>>() {}.getType());
                 for (Task task : historyList) {
-                    manager.inMemoryHistoryManager.add(task);
+                    TaskType type = task.getType();
+                    switch (type) {
+                        case TASK:
+                            Task taskToAdd = manager.tasks.get(task.getId());
+                            manager.inMemoryHistoryManager.add(taskToAdd);
+                            break;
+                        case EPIC:
+                            Epic epicToAdd = manager.epics.get(task.getId());
+                            manager.inMemoryHistoryManager.add(epicToAdd);
+                            break;
+                        case SUBTASK:
+                            Subtask subtaskToAdd = manager.subtasks.get(task.getId());
+                            manager.inMemoryHistoryManager.add(subtaskToAdd);
+                    }
                 }
+            }
+            String loadedPrioritized = kvTaskClient.load("/tasks");
+            if (loadedPrioritized != null) {
+                List<Task> prioritizedList = gson.fromJson(loadedPrioritized, new TypeToken<List<Task>>() {}.getType());
+                manager.prioritizedTasks.addAll(prioritizedList);
             }
 
             manager.setStartingId(startId);
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("Ошибка при загрузке менеджера задач");
         }
         return manager;
@@ -75,9 +97,10 @@ public class HttpTaskManager extends FileBackedTaskManager{
 
     @Override
     protected void save() {
-        kvTaskClient.put("tasks/task", gson.toJson(tasks));
-        kvTaskClient.put("tasks/epic", gson.toJson(epics));
-        kvTaskClient.put("tasks/subtask", gson.toJson(subtasks));
-        kvTaskClient.put("tasks/history", gson.toJson(getHistory()));
+        kvTaskClient.put("/tasks", gson.toJson(getPrioritizedTasks()));
+        kvTaskClient.put("/tasks/task", gson.toJson(getAllTasks()));
+        kvTaskClient.put("/tasks/epic", gson.toJson(getAllEpics()));
+        kvTaskClient.put("/tasks/subtask", gson.toJson(getAllSubtasks()));
+        kvTaskClient.put("/tasks/history", gson.toJson(getHistory()));
     }
 }

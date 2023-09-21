@@ -1,5 +1,7 @@
 import api.HttpTaskServer;
 import api.KVServer;
+import service.HttpTaskManager;
+import util.Managers;
 
 import java.io.IOException;
 
@@ -8,7 +10,8 @@ public class Main {
         try {
             KVServer kvServer = new KVServer();
             kvServer.start();
-            HttpTaskServer httpTaskServer = new HttpTaskServer("http://localhost");
+            HttpTaskManager taskManager = Managers.getDefault("http://localhost");
+            HttpTaskServer httpTaskServer = new HttpTaskServer(taskManager);
             httpTaskServer.start();
         } catch (IOException | InterruptedException e) {
             System.out.println("Ошибка запуска сервера");
